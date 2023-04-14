@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -22,7 +23,9 @@ fun InputField(
     valueState: MutableState<String>,
     labelId: String,
     enabled: Boolean,
+    trailingIcon:  @Composable () -> Unit = {},
     isSingleLine: Boolean = true,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     onAction: KeyboardActions = KeyboardActions.Default
@@ -33,6 +36,7 @@ fun InputField(
         ).fillMaxWidth(),
         label = { Text(text = labelId) },
         enabled = enabled,
+        visualTransformation = visualTransformation,
         value = valueState.value,
         onValueChange = { value ->
             valueState.value = value
@@ -42,6 +46,7 @@ fun InputField(
             fontSize = 18.sp,
             color = MaterialTheme.colors.onBackground
         ),
+        trailingIcon = trailingIcon,
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = imeAction
