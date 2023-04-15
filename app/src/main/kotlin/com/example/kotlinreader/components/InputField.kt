@@ -50,6 +50,7 @@ fun InputField(
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = imeAction
-        )
+        ),
+        keyboardActions = onAction
     )
 }
