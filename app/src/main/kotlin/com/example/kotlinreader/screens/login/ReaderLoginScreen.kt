@@ -1,6 +1,5 @@
 package com.example.kotlinreader.screens.login
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -58,7 +57,11 @@ fun ReaderLoginScreen(
                     }
                 }
 
-                else UserForm(loading = false, isCreatedAccount = true)
+                else UserForm(loading = false, isCreatedAccount = true) { email, password ->
+                    viewModel.createUser(email, password) {
+                        navController.navigate(ReaderScreens.ReaderHomeScreen.name)
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(25.dp))
             Row {

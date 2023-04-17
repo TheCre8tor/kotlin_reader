@@ -33,7 +33,21 @@ class LoginScreenViewModel: ViewModel() {
         }
     }
 
-    fun createUser() {}
+    fun createUser(email: String, password: String, home: () -> Unit) {
+            if (_loading.value == false) {
+                _loading.value = true
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("FIREBASE - REGISTERED", "signIn: ${task.result}")
+                            home()
+                        } else {
+                            Log.d("FIREBASE - FAILED", "signIn: ${task.result}")
+                        }
+                        _loading.value = false
+                    }
+            }
+    }
 
 }
 
