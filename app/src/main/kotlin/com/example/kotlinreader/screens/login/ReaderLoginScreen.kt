@@ -33,12 +33,19 @@ import com.example.kotlinreader.R
 import com.example.kotlinreader.components.EmailInput
 import com.example.kotlinreader.components.PasswordInput
 import com.example.kotlinreader.components.ReaderLogo
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.kotlinreader.navigation.ReaderScreens
 
 @Composable
-fun ReaderLoginScreen(navController: NavController) {
+fun ReaderLoginScreen(
+    navController: NavController,
+    viewModel: LoginScreenViewModel = viewModel()
+) {
     val showLoginForm = rememberSaveable { mutableStateOf(true) }
 
-    Surface(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+    Surface(modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState())) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -46,7 +53,9 @@ fun ReaderLoginScreen(navController: NavController) {
             ) {
                 ReaderLogo(modifier = Modifier.padding(top = 24.dp))
                 if (showLoginForm.value) UserForm(loading = false, isCreatedAccount = false) { email, password ->
-                    Log.d("Form", "ReaderLoginScreen: $email, $password")
+                    viewModel.signIn(email, password) {
+                        navController.navigate(ReaderScreens.ReaderHomeScreen.name)
+                    }
                 }
 
                 else UserForm(loading = false, isCreatedAccount = true)
