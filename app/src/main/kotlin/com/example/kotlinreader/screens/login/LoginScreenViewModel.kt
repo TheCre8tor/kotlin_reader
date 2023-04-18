@@ -9,12 +9,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
-class LoginScreenViewModel: ViewModel() {
+class LoginScreenViewModel : ViewModel() {
     // val loadingState = MutableStateFlow(LoadingState.IDLE)
     private val auth: FirebaseAuth = Firebase.auth
-    private val _loading = MutableLiveData(true)
+    private val _loading = MutableLiveData(false)
     val loading: LiveData<Boolean> = _loading
 
     fun signIn(email: String, password: String, home: () -> Unit) = viewModelScope.launch {
@@ -34,19 +33,19 @@ class LoginScreenViewModel: ViewModel() {
     }
 
     fun createUser(email: String, password: String, home: () -> Unit) {
-            if (_loading.value == false) {
-                _loading.value = true
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Log.d("FIREBASE - REGISTERED", "signIn: ${task.result}")
-                            home()
-                        } else {
-                            Log.d("FIREBASE - FAILED", "signIn: ${task.result}")
-                        }
-                        _loading.value = false
+        if (_loading.value == false) {
+            _loading.value = true
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("FIREBASE - REGISTERED", "signIn: ${task.result}")
+                        home()
+                    } else {
+                        Log.d("FIREBASE - FAILED", "signIn: ${task.result}")
                     }
-            }
+                    _loading.value = false
+                }
+        }
     }
 
 }
