@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kotlinreader.models.UserModel
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -53,14 +54,18 @@ class LoginScreenViewModel : ViewModel() {
     private fun addUserToFirestore(task: Task<AuthResult>) {
         val displayName = task.result.user?.email?.split('@')?.get(0)
         val userId = auth.currentUser?.uid
-        val user = mutableMapOf<String, Any>()
 
-        user["user_id"] = "$userId"
-        user["name"] = "$displayName"
+        val user = UserModel(
+            userId = userId,
+            displayName = displayName,
+            avatarUrl = "",
+            quote = "Life is great!",
+            profession = "Android Developer"
+        )
 
         val firestore = FirebaseFirestore.getInstance()
         val usersTable = firestore.collection("users")
-        usersTable.add(user)
+        usersTable.add(user.toMap())
     }
 
     fun createUser(email: String, password: String, callback: () -> Unit) {
