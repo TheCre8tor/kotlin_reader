@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
@@ -48,6 +49,7 @@ fun ReaderLoginScreen(
     navController: NavController,
     viewModel: LoginScreenViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val showLoginForm = rememberSaveable { mutableStateOf(true) }
 
     Surface(
@@ -67,7 +69,8 @@ fun ReaderLoginScreen(
                     loading = viewModel.loading.value == true,
                     isCreatedAccount = false
                 ) { email, password ->
-                    viewModel.signIn(email, password) {
+
+                    viewModel.signIn(context, email, password) {
                         navController.navigate(ReaderScreens.ReaderHomeScreen.name)
                     }
                 }

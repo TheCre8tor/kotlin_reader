@@ -1,12 +1,17 @@
 package com.example.kotlinreader.screens.login
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
@@ -16,23 +21,46 @@ class LoginScreenViewModel : ViewModel() {
     private val _loading = MutableLiveData(false)
     val loading: LiveData<Boolean> = _loading
 
-    fun signIn(email: String, password: String, home: () -> Unit) = viewModelScope.launch {
-        try {
-            _loading.value = true
 
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d("FIREBASE - OK", "signIn: ${task.result}")
-                        home()
-                    } else {
-                        Log.d("FIREBASE - FAILED", "signIn: ${task.result}")
+    fun signIn(context: Context, email: String, password: String, home: () -> Unit) =
+        viewModelScope.launch {
+            try {
+                _loading.value = true
+
+
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            home()
+                        } else {
+                            Log.d("FIREBASE - FAILED", "signIn: ${task.result}")
+                        }
+                        _loading.value = false
+                    }.addOnFailureListener { error ->
+                        toast(context, message = error.message)
+                        println("ERROR: ${error.message}")
+
                     }
-                    _loading.value = false
-                }
-        } catch (error: Exception) {
-            Log.d("FIREBASE - ERROR", "signIn: ${error.message}")
+            } catch (error: Exception) {
+                toast(context, message = error.message)
+            }
         }
+
+    private fun toast(context: Context, message: String?) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun addUserToFirestore(task: Task<AuthResult>) {
+        val displayName = task.result.user?.email?.split('@')?.get(0)
+        val userId = auth.currentUser?.uid
+        val user = mutableMapOf<String, Any>()
+
+        user["user_id"] = "$userId"
+        user["name"] = "$displayName"
+
+        val firestore = FirebaseFirestore.getInstance()
+        val usersTable = firestore.collection("users")
+        usersTable.add(user)
     }
 
     fun createUser(email: String, password: String, callback: () -> Unit) {
@@ -41,7 +69,7 @@ class LoginScreenViewModel : ViewModel() {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Log.d("FIREBASE - REGISTERED", "signIn: ${task.result}")
+                        addUserToFirestore(task)
                         callback()
                     } else {
                         Log.d("FIREBASE - FAILED", "signIn: ${task.result}")
