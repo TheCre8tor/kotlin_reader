@@ -2,7 +2,15 @@ package com.example.kotlinreader.screens.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -27,12 +35,12 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.kotlinreader.R
 import com.example.kotlinreader.components.EmailInput
 import com.example.kotlinreader.components.PasswordInput
 import com.example.kotlinreader.components.ReaderLogo
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kotlinreader.navigation.ReaderScreens
 
 @Composable
@@ -42,24 +50,33 @@ fun ReaderLoginScreen(
 ) {
     val showLoginForm = rememberSaveable { mutableStateOf(true) }
 
-    Surface(modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(rememberScrollState())) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
                 ReaderLogo(modifier = Modifier.padding(top = 24.dp))
-                if (showLoginForm.value) UserForm(loading = false, isCreatedAccount = false) { email, password ->
+                if (showLoginForm.value) UserForm(
+                    loading = viewModel.loading.value == true,
+                    isCreatedAccount = false
+                ) { email, password ->
                     viewModel.signIn(email, password) {
                         navController.navigate(ReaderScreens.ReaderHomeScreen.name)
                     }
                 }
-
-                else UserForm(loading = false, isCreatedAccount = true) { email, password ->
+                else UserForm(
+                    loading = viewModel.loading.value == true,
+                    isCreatedAccount = true
+                ) { email, password ->
                     viewModel.createUser(email, password) {
-                        navController.navigate(ReaderScreens.ReaderHomeScreen.name)
+                        navController.navigate(ReaderScreens.LoginScreen.name)
                     }
                 }
             }
@@ -84,7 +101,7 @@ fun ReaderLoginScreen(
 
 @Composable
 fun UserForm(
-    loading: Boolean = false,
+    loading: Boolean,
     isCreatedAccount: Boolean = false,
     onDone: (String, String) -> Unit = { _, _ -> },
 ) {
@@ -101,10 +118,17 @@ fun UserForm(
         modifier = Modifier
             .background(color = MaterialTheme.colors.background),
         horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+    ) {
         val style = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 18.dp, top = 10.dp)
-        if (isCreatedAccount) Text(text = stringResource(id = R.string.create_account), modifier = style)
-        else Placeholder(height = 0.sp, width = 0.sp, placeholderVerticalAlign = PlaceholderVerticalAlign.Center)
+        if (isCreatedAccount) Text(
+            text = stringResource(id = R.string.create_account),
+            modifier = style
+        )
+        else Placeholder(
+            height = 0.sp,
+            width = 0.sp,
+            placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+        )
 
         EmailInput(
             emailState = email,

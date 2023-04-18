@@ -18,6 +18,8 @@ class LoginScreenViewModel : ViewModel() {
 
     fun signIn(email: String, password: String, home: () -> Unit) = viewModelScope.launch {
         try {
+            _loading.value = true
+
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -26,20 +28,21 @@ class LoginScreenViewModel : ViewModel() {
                     } else {
                         Log.d("FIREBASE - FAILED", "signIn: ${task.result}")
                     }
+                    _loading.value = false
                 }
         } catch (error: Exception) {
             Log.d("FIREBASE - ERROR", "signIn: ${error.message}")
         }
     }
 
-    fun createUser(email: String, password: String, home: () -> Unit) {
+    fun createUser(email: String, password: String, callback: () -> Unit) {
         if (_loading.value == false) {
             _loading.value = true
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         Log.d("FIREBASE - REGISTERED", "signIn: ${task.result}")
-                        home()
+                        callback()
                     } else {
                         Log.d("FIREBASE - FAILED", "signIn: ${task.result}")
                     }
